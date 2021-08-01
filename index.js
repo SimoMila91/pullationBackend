@@ -7,10 +7,10 @@ const path = require('path');
 let port = process.env.PORT || 3000; 
 
 let db = mysql.createPool({
-  host:  process.ENV.HOST_NAME,
-  user: process.ENV.USER,
-  password: process.ENV.PASSWORD,
-  database: process.ENV.DATABASE,
+  host:  process.env.HOST_NAME,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
 });
 
 const app = express();
