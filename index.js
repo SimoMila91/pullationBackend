@@ -7,11 +7,10 @@ const path = require('path');
 let port = process.env.PORT || 3000; 
 
 let db = mysql.createPool({
-  host:  "localhost",
-  user: 'root',
-  password: 'password',
-  database: 'pollution',
-  port: 3306
+  host:  "eu-cdbr-west-01.cleardb.com",
+  user: 'b8933a57b9adc1',
+  password: '450cad4b',
+  database: 'heroku_6eab32090675071',
 });
 
 const app = express();
