@@ -3,7 +3,9 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const multer = require('multer');
+const sharp = require('sharp');
 const path = require('path');
+const { uploadFile } = require('./s3');
 let port = process.env.PORT || 3000; 
 
 let db = mysql.createPool({
@@ -43,7 +45,7 @@ const uploadMiddleware = multer({
     }
     cb(null, true);
   }
-}).single('file');
+});
 
 const reports = (req, res) => {
   let query = `SELECT * FROM report`;
@@ -58,7 +60,7 @@ const reports = (req, res) => {
 
 
 
-const uploadFile = (req, res) => {
+const dbUpload = (req, res, next)   => {
   const d = new Date();
   const reportDate = d.toLocaleDateString();
 
@@ -70,11 +72,25 @@ const uploadFile = (req, res) => {
     if (err) {
       res.status(500).send(err); 
     } else {
-      res.status(200).send('The report has been received. Planet earth thanks you.');
+     next();
     }
   })
-};
+}
+const catchAsync =(req, res, next) => {
+  if (!req.file) return next(); 
+ sharp(req.file.buffer)
+   .resize(200, 200)
+   .jpeg({ quality: 90 });
+  next();
+ };
+
+app.post('/upload', catchAsync, uploadMiddleware.single('file'), dbUpload, async (req, res) => {
+  const file = req.file; 
+  console.log(file);
+  const result = await uploadFile(file);
+  console.log(result);
+  res.status(200).send('The report has been received. Planet earth thanks you.');
+})
 
 app.get("/reports", reports);
-app.post("/upload", uploadMiddleware, uploadFile);
 app.listen(port, () => { console.log(`Server started at port: ${port}`)});
